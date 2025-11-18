@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcrypt";
 import { User } from "../models/user.models.js"
 import jwt from "jsonwebtoken";
+import sendMail from "../utils/mail.js";
 
 const router = express.Router();
 
@@ -85,8 +86,10 @@ router.get('/request-reset', async (req, res) => {
         existingUser.resetOTP = otp;
         existingUser.resetOTPExpires = expiry;
         await existingUser.save();
-        return res.status(201).json({ message: "OTP created successfully", otp });
+        sendMail(email, otp, 10);
+        return res.status(201).json({ message: "OTP Sent successfully", otp });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ Error: "Error generating OTP" });
     }
 });
